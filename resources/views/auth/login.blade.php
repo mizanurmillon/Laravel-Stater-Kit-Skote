@@ -8,7 +8,7 @@
     @include('backend.partials.style')
 </head>
 
-<body style="background: #4285F4;">
+<body style="background: #004C62;">
     <div class="my-5 account-pages pt-sm-5">
         <div class="container">
             <div class="d-flex justify-content-center align-items-center" style="width: 100%; height: 80vh">
@@ -24,7 +24,7 @@
 
                                     <div class="mb-10 fv-row">
                                         @if (session('status'))
-                                        {{ session('status') }}
+                                            {{ session('status') }}
                                         @endif
                                     </div>
 
@@ -33,7 +33,7 @@
                                         <input type="text" name="email" class="form-control" id="email"
                                             placeholder="Enter Email">
                                         @error('email')
-                                        <span class="d-block text-danger">{{ $message }}</span>
+                                            <span class="d-block text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
 
@@ -48,58 +48,20 @@
                                             </button>
                                         </div>
                                         @error('password')
-                                        <span class="d-block text-danger">{{ $message }}</span>
+                                            <span class="d-block text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
 
                                     <div class="mt-4 d-grid">
                                         <button class="btn btn-primary waves-effect waves-light" type="submit">Log
                                             In</button>
+                                        <div class="mt-4 text-center">
+                                            <a href="{{ route('password.request') }}" class="text-muted"><i
+                                                    class="mdi mdi-lock me-1"></i> Forgot your password?</a>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
-                            {{-- <div class="p-10 mx-auto bg-white w-lg-500px p-lg-15" style="border-radius: 15px">
-                                <form class="form w-100" novalidate="novalidate" id="kt_sign_in_form"
-                                    action="{{ route('login') }}" method="POST">
-                                    @csrf
-                                    <div class="mb-10 text-center">
-                                        <h1 class="mb-3 text-dark"> Sign In </h1>
-                                    </div>
-                                    <div class="mb-10 fv-row">
-                                        @if (session('status'))
-                                        {{ session('status') }}
-                                        @endif
-                                    </div>
-                                    <div class="mb-10 fv-row">
-                                        <label class="form-label fs-6 fw-bold text-dark">Email</label>
-                                        <input
-                                            class="form-control form-control-lg form-control-solid @error('email')  @enderror"
-                                            type="email" name="email" value="{{ old('email') }}" autocomplete="off" />
-                                        @error('email')
-                                        <span class="d-block text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                    <div class="mb-10 fv-row">
-                                        <div class="mb-2 d-flex flex-stack">
-                                            <label class="mb-0 form-label fw-bold text-dark fs-6">Password</label>
-                                        </div>
-                                        <input class="form-control form-control-lg form-control-solid" type="password"
-                                            name="password" autocomplete="off" />
-                                        @error('password')
-                                        <span class="d-block text-danger">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div class="text-center">
-                                        <button type="submit" id="kt_sign_in_submit"
-                                            class="mb-5 btn btn-lg btn-primary w-100">
-                                            <span class="indicator-label">
-                                                Log In
-                                            </span>
-                                        </button>
-                                    </div>
-                                </form>
-                            </div> --}}
                         </div>
                     </div>
                 </div>

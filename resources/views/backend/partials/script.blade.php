@@ -4,12 +4,13 @@
 <script src="{{ asset('backend') }}/assets/libs/metismenu/metisMenu.min.js"></script>
 <script src="{{ asset('backend') }}/assets/libs/simplebar/simplebar.min.js"></script>
 <script src="{{ asset('backend') }}/assets/libs/node-waves/waves.min.js"></script>
-<script src="https://mikeywv123.softvencefsd.xyz/backend/js/datatables.min.js"></script>
+
 
 <!-- Bootstrap touchspin -->
 <script src="{{ asset('backend') }}/assets/libs/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js"></script>
 
 {{-- Dashboard Custom Scripts --}}
+<script src="{{ asset('backend') }}/assets/js/datatables.min.js"></script>
 <script src="{{ asset('backend') }}/assets/js/dropify.min.js"></script>
 <script src="{{ asset('backend') }}/assets/js/sweetalert2@11.js"></script>
 <script src="{{ asset('backend') }}/assets/js/toastr.min.js"></script>

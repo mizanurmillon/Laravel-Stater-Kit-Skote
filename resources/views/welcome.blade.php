@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Home</title>
+    <title>Dashboard</title>
     {{-- FAVICON --}}
     <link rel="shortcut icon" type="image/x-icon"
         href="{{ isset($systemSetting->favicon) && !empty($systemSetting->favicon) ? asset($systemSetting->favicon) : asset('frontend/logo.png') }}" />
@@ -35,7 +35,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-color: #3b82f6;
+            background-color: #004C62;
             /* Tailwind's bg-blue-500 */
             text-align: center;
         }
@@ -96,7 +96,7 @@
         }
 
         .bg-blue-500 {
-            background-color: #3b82f6;
+            background-color: #004C62;
         }
 
         /* Button styles */

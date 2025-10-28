@@ -23,6 +23,22 @@
     .dropify-wrapper .dropify-render {
         display: unset !important;
     }
+
+    div:where(.swal2-container) button:where(.swal2-styled).swal2-confirm {
+        background-color: #004C62 !important;
+    }
+    .swal2-icon.swal2-info {
+        border-color: #004C62 !important;
+        color: #004C62 !important;
+    }
+    .btn.btn-primary {
+        border-color: var(--bs-warning);
+        background-color: #004C62 !important;
+    }
+    .btn-check:checked + .btn.btn-primary, .btn-check:active + .btn.btn-primary, .btn.btn-primary:focus:not(.btn-active), .btn.btn-primary:hover:not(.btn-active), .btn.btn-primary:active:not(.btn-active), .btn.btn-primary.active, .btn.btn-primary.show, .show > .btn.btn-primary {
+        border-color: var(--bs-primary-active);
+        background-color:#004C62 !important;
+    }
 </style>
 {{-- dropify and ck-editor end --}}
 
