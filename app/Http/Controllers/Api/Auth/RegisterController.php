@@ -11,14 +11,11 @@ use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
-use App\Mail\OTPMail;
 use App\Models\EmailOtp;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class RegisterController extends Controller
 {
-    use ApiResponse;
-
+     use ApiResponse;
 
     /**
      * Send a Register (OTP) to the user via email.
@@ -27,7 +24,8 @@ class RegisterController extends Controller
      * @return void
      */
 
-    private function sendOtp($user) {
+    private function sendOtp($user)
+    {
         $code = rand(1000, 9999);
 
         // Store verification code in the database
@@ -35,185 +33,119 @@ class RegisterController extends Controller
             ['user_id' => $user->id],
             [
                 'verification_code' => $code,
-                'expires_at' => Carbon::now()->addMinutes(15)
+                'expires_at'        => Carbon::now()->addMinutes(3),
             ]
         );
 
         Mail::to($user->email)->send(new RegistationOtp($user, $code));
     }
 
-
     /**
-     * Register User by name, gender, email, number, password & privacy policy
+     * Register User
      *
      * @param  \Illuminate\Http\Request  $request  The HTTP request with the register query.
      * @return \Illuminate\Http\JsonResponse  JSON response with success or error.
      */
 
-    public function userRegister(Request $request)
+    public function Register(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'gender' => 'required|in:male,female,other',
-            'email' => 'required|email|unique:users,email',
-            'number' => 'required|numeric',
-            'password' => [
+            'name'           => 'required|string|max:255',
+            'email'          => 'required|email|unique:users,email',
+            'password'       => [
                 'required',
                 'string',
                 'min:8',
                 'confirmed',
             ],
-            'agree_to_terms' => 'required|boolean'
+            'agree_to_terms' => 'required|boolean',
         ], [
             'password.min' => 'The password must be at least 8 characters long.',
-            'gender.in' => 'The selected gender is invalid.',
         ]);
 
         if ($validator->fails()) {
-            return $this->error([], $validator->errors(), 422);
+            return $this->error($validator->errors(), $validator->errors()->first(), 422);
         }
 
-        try {
+         try {
             // Find the user by ID
-            $user = new User();
-            $user->name = $request->input('name');
-            $user->gender = $request->input('gender');
-            $user->email = $request->input('email');
-            $user->number = $request->input('number');
-            $user->password = Hash::make($request->input('password')); // Hash the password
+            $user                 = new User();
+            $user->name           = $request->input('name');
+            $user->email          = $request->input('email');
+            $user->password       = Hash::make($request->input('password')); // Hash the password
             $user->agree_to_terms = $request->input('agree_to_terms');
 
             $user->save();
 
-            $token = JWTAuth::fromUser($user);
-
             $this->sendOtp($user);
 
-
-            $responseData = [
-                'id'       => $user->id,
-                'name'     => $user->name,
-                'email'    => $user->email,
-                'number'    => $user->number,
-                'gender'    => $user->gender,
-                'agree_to_terms'   => $user->agree_to_terms,
-                'token'    => $token,
-            ];
-
-            return $this->success($responseData, 'Verification email sent', 201);
+            return $this->success($user, 'Verification email sent', 201);
         } catch (\Exception $e) {
             return $this->error([], $e->getMessage(), 500);
         }
     }
 
-    /**
-     * Verify the OTP sent to the user.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function otpVarify(Request $request) {
-
-        // Validate the request
+    public function resendOtp(Request $request)
+    {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email',
-            'otp' => 'required|numeric|digits:4',
+            'email' => 'required|email',
         ]);
 
         if ($validator->fails()) {
-            return $this->error([], $validator->errors(), 422);
+            return $this->error($validator->errors(), $validator->errors()->first(), 422);
         }
 
-        try {
-            // Retrieve the user by email
-            $user = User::where('email', $request->input('email'))->first();
+        $user = User::where('email', $request->input('email'))->first();
 
-            $verification = EmailOtp::where('user_id', $user->id)
-            ->where('verification_code', $request->input('otp'))
-            ->where('expires_at', '>', Carbon::now())
-            ->first();
-
-
-            if ($verification) {
-
-                $user->email_verified_at = Carbon::now();
-                $user->save();
-
-                $verification->delete();
-
-                return $this->success($user, 'OTP verified successfully', 200);
-            } else {
-
-                return $this->error([], 'Invalid or expired OTP', 400);
-            }
-        } catch (\Exception $e) {
-            return $this->error([], $e->getMessage(), 500);
+        if (!$user) {
+            return $this->error([], 'User not found', 404);
         }
+
+        $this->sendOtp($user);
+
+        return $this->success([], 'OTP resent successfully', 200);
     }
 
-    /**
-     * Resend an OTP to the user.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-
-     public function otpResend(Request $request) {
-
+    public function verifyOtp(Request $request)
+    {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email',
+            'email'    => 'required|email',
+            'otp'      => 'required|numeric',
         ]);
 
         if ($validator->fails()) {
-            return $this->error([], $validator->errors(), 422);
+            return $this->error($validator->errors(), $validator->errors()->first(), 422);
         }
 
-        try {
-            // Retrieve the user by email
-            $user = User::where('email', $request->input('email'))->first();
+        $user = User::where('email', $request->input('email'))->first();
 
-            $this->sendOtp($user);
-
-            return $this->success($user, 'OTP has been sent successfully.',200);
-        } catch (\Exception $e) {
-            return $this->error([], $e->getMessage(), 500);
-        }
-     }
-
-     /**
-     * Save User Address
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-
-     public function saveAddress(Request $request) {
-
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|exists:users,email',
-            'address' => 'required|string',
-            'lat' => 'required|numeric',
-            'long' => 'required|numeric',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->error([], $validator->errors(), 422);
+        if (!$user) {
+            return $this->error([], 'User not found', 404);
         }
 
-        try {
-            // Retrieve the user by email
-            $user = User::where('email', $request->input('email'))->first();
+        $otp = EmailOtp::where('user_id', $user->id)->first();
 
-            $user->address = $request->input('address');
-            $user->lat = $request->input('lat');
-            $user->long = $request->input('long');
-            $user->save();
-
-            return $this->success($user, 'Address Saved!',200);
-
-        } catch (\Exception $e) {
-            return $this->error([], $e->getMessage(), 500);
+        if (!$otp) {
+            return $this->error([], 'OTP not found', 404);
         }
-     }
+
+        if ($otp->verification_code !== $request->input('otp')) {
+            return $this->error([], 'Invalid OTP', 401);
+        }
+
+        if ($otp->expires_at < now()) {
+            return $this->error([], 'OTP has expired', 401);
+        }
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        $otp->delete();
+
+        // Create Sanctum token
+        $token = $user->createToken('auth_token')->plainTextToken;
+        $user->setAttribute('token', $token);
+
+        return $this->success($user, 'Email verified successfully', 200);
+    }
 }

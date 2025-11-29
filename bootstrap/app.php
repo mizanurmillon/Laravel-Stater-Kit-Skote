@@ -1,11 +1,12 @@
 <?php
 
 use App\Http\Middleware\Admin;
-use App\Http\Middleware\JWTMiddleware;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
+
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -31,10 +32,16 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'jwt.verify' => JWTMiddleware::class,
             'admin' => Admin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (AuthenticationException $e, $request) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthenticated',
+                'data' => [],
+                'code' => 401
+            ], 401);
+        });
     })->create();
